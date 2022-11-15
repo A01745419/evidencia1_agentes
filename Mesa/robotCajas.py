@@ -21,15 +21,52 @@ class RobotAgent(Agent):
     '''
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
-        self.tipo = 0
-        self.caja = False
+        self.tipo = "robot"
+        #self.caja = False
         self.movimientos = 0
 
     def move(self):
-        ...
+        possibleSteps = self.model.grid.get_neighborhood(
+            self.pos,
+            moore=True,
+            include_center=False,
+            radius = 1)
+        cellmates = self.model.grid.get_cell_list_contents([self.pos])
+        caja = False
+        
+        if len(cellmates) != 0:
+            for i in cellmates:
+                if i.tipo == "caja":
+                    caja = True
+                    self.tipo = "robotCaja"
+                    i.tipo = "vacio"
+                elif i.tipo == "pila":
+                    caja = False
+                    self.tipo = "robot"
+                    self.model.cajas -= 1
+
+        if len(cellmates) == 0 or caja == False:
+            new_position = self.random.choice(possibleSteps)
+            cellmatesNewPos = self.model.grid.get_cell_list_contents([new_position])
+            if len(cellmatesNewPos) == 1:
+                if cellmatesNewPos[0].tipo != "robot" and cellmatesNewPos[0].tipo != "robotCaja":
+                    self.model.grid.move_agent(self, new_position)
+                    self.movimientos += 1
+            elif len(cellmatesNewPos) == 0:
+                self.model.grid.move_agent(self, new_position)
+                self.movimientos += 1
+                    
     
     def step(self):
-        ...
+        if self.model.pasos > 0 and self.model.cajas > 0:
+            self.move()
+            self.model.pasos -= 1
+        else:
+            print("FIN DE SIMULACION")
+            print("Cajas: ", self.model.cajas)
+            print("Pasos: ", self.model.pasos)
+            print(" ")
+
 
 class CajaAgent(Agent):
     '''
@@ -37,7 +74,7 @@ class CajaAgent(Agent):
     '''
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
-        self.tipo = 1
+        self.tipo = "caja"
         self.movimientos = 0
 
 class PilaAgent(Agent):
@@ -46,7 +83,7 @@ class PilaAgent(Agent):
     '''
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
-        self.tipo = 2
+        self.tipo = "pila"
         self.numCajas = 0
         self.movimientos = 0
 
