@@ -22,6 +22,7 @@ class RobotAgent(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
         self.tipo = 0
+        self.caja = False
         self.movimientos = 0
 
     def move(self):
