@@ -40,6 +40,16 @@ class CajaAgent(Agent):
         self.tipo = 1
         self.movimientos = 0
 
+class PilaAgent(Agent):
+    '''
+    Representa a una pila que contiene cajas (max 5).
+    '''
+    def __init__(self, unique_id, model):
+        super().__init__(unique_id, model)
+        self.tipo = 2
+        self.numCajas = 0
+        self.movimientos = 0
+
 class AcomodarCajasModel(Model):
     '''
     Representa el modelo que genera agentes y sus comportamientos en su ambiente.
