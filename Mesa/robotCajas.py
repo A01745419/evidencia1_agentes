@@ -8,7 +8,7 @@ Noviembre 15, 2022
 from mesa import Agent, Model 
 
 # Debido a que necesitamos un solo agente por celda elegimos `SingleGrid` que fuerza un solo objeto por celda.
-from mesa.space import SingleGrid
+from mesa.space import MultiGrid
 
 # Con `SimultaneousActivation` hacemos que todos los agentes se activen de manera simultanea.
 from mesa.time import SimultaneousActivation
@@ -43,6 +43,7 @@ class RobotAgent(Agent):
                 elif i.tipo == "pila":
                     caja = False
                     self.tipo = "robot"
+                    i.tipo = "pila"
                     self.model.cajas -= 1
 
         if len(cellmates) == 0 or caja == False:
@@ -58,14 +59,11 @@ class RobotAgent(Agent):
                     
     
     def step(self):
-        if self.model.pasos > 0 and self.model.cajas > 0:
+        if self.model.pasosTotales > 0 and self.model.cajas > 0:
             self.move()
-            self.model.pasos -= 1
+            self.model.pasosTotales -= 1
         else:
             print("FIN DE SIMULACION")
-            print("Cajas: ", self.model.cajas)
-            print("Pasos: ", self.model.pasos)
-            print(" ")
 
 
 class CajaAgent(Agent):
@@ -96,4 +94,43 @@ class AcomodarCajasModel(Model):
         self.alto = height
         self.agentes = agents
         self.cajas = boxes
-        self.pasos = steps
+        self.pasosTotales = steps * agents
+        self.grid = MultiGrid(width, height, True)
+        self.schedule = SimultaneousActivation(self)
+        self.running = True
+        celdas = []
+        self.pilas = boxes // agents
+        #self.maxPilas = 5
+
+        for (content, x, y) in self.grid.coord_iter():
+            celdas.append([x, y])
+
+        for i in range(self.agentes):
+            a = RobotAgent(i, self)
+            self.schedule.add(a)
+            #self.grid.place_agent(a, (1, 1))
+            pos = self.random.choice(celdas)
+            self.grid.place_agent(a, (pos[0], pos[1]))
+            celdas.remove(pos) 
+        
+        for i in range(self.cajas):
+            a = CajaAgent(i, self)
+            #self.schedule.add(a)
+            # Add the agent to a random grid cell
+            pos = self.random.choice(celdas)
+            self.grid.place_agent(a, (pos[0], pos[1])) 
+            celdas.remove(pos)
+        
+        for i in range(self.pilas):
+            a = PilaAgent(i, self)
+            #self.schedule.add(a)
+            # Add the agent to a random grid cell
+            pos = self.random.choice(celdas)
+            self.grid.place_agent(a, (pos[0], pos[1])) 
+            celdas.remove(pos)
+
+    def step(self):
+        self.schedule.step()
+        print("Cajas restantes para acomodar: ", self.cajas)
+        print("Movimientos restantes: ", self.pasosTotales)
+        print(" ")
