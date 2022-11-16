@@ -60,7 +60,7 @@ ancho = 15
 alto = 15
 robots = 5
 cajas = 20
-pasos = 50
+pasos = 5000000
 grid = CanvasGrid(agent_portrayal, ancho, alto, 750, 750)
 server = ModularServer(AcomodarCajasModel,
                        [grid],

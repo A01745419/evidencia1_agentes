@@ -23,7 +23,8 @@ class RobotAgent(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
         self.tipo = "robot"
-        #self.caja = False
+        self.tieneCaja = False
+        self.estaPila = False
         self.movimientos = 0
 
     def move(self):
@@ -31,34 +32,42 @@ class RobotAgent(Agent):
             self.pos,
             moore=False,
             include_center=False,
-            radius = 1)
+            radius=1)
         cellmates = self.model.grid.get_cell_list_contents([self.pos])
-        caja = False
-        
+        # caja = False
+
         if len(cellmates) != 0:
             for i in cellmates:
                 if i.tipo == "caja":
-                    caja = True
+                    self.tieneCaja = True
                     self.tipo = "robotCaja"
                     i.tipo = "vacio"
                 elif i.tipo == "pila":
-                    caja = False
-                    self.tipo = "robot"
-                    i.tipo = "pila"
-                    self.model.cajas -= 1
+                    self.estaPila = True
+                elif self.estaPila is True:
+                    if self.tieneCaja is True:
+                        self.model.cajas -= 1
+                        self.tieneCaja = False
+                        self.tipo = "robot"
+                    else:
+                        self.tipo = "robot"
+                    
 
-        if len(cellmates) == 0 or caja == False:
+        if len(cellmates) == 0 or (self.tieneCaja is False and self.estaPila is False):
             new_position = self.random.choice(possibleSteps)
             cellmatesNewPos = self.model.grid.get_cell_list_contents([new_position])
+            print(f'Celmates{cellmatesNewPos}')
             if len(cellmatesNewPos) == 1:
-                if cellmatesNewPos[0].tipo != "robot" and cellmatesNewPos[0].tipo != "robotCaja" and cellmatesNewPos[0].tipo != "pared":
+                if cellmatesNewPos[0].tipo != "robot" and \
+                   cellmatesNewPos[0].tipo != "robotCaja" and \
+                   cellmatesNewPos[0].tipo != "pared":
                     self.model.grid.move_agent(self, new_position)
                     self.movimientos += 1
+                    print(self.pos)
             elif len(cellmatesNewPos) == 0:
                 self.model.grid.move_agent(self, new_position)
                 self.movimientos += 1
-                    
-    
+
     def step(self):
         if self.model.pasosTotales > 0 and self.model.cajas > 0:
             self.move()
@@ -111,6 +120,7 @@ class AcomodarCajasModel(Model):
         celdas = []
         self.pilas = boxes // agents
         self.hEstante = height - 2
+        self.posPilas = []
         # self.maxPilas = 5
 
         for (content, x, y) in self.grid.coord_iter():
@@ -121,6 +131,7 @@ class AcomodarCajasModel(Model):
             a = PilaAgent(i, self)
             self.grid.place_agent(a, (i + 1, self.hEstante))
             pos = [i + 1, self.hEstante]
+            self.posPilas.append(pos)
             celdas.remove(pos)
 
         # Hace el muro y
@@ -161,5 +172,6 @@ class AcomodarCajasModel(Model):
         self.schedule.step()
         print("Cajas restantes para acomodar: ", self.cajas)
         print("Movimientos restantes: ", self.pasosTotales)
+        print(f'selfpospilas {self.posPilas}')
         print(" ")
 
