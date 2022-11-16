@@ -29,7 +29,7 @@ class RobotAgent(Agent):
     def move(self):
         possibleSteps = self.model.grid.get_neighborhood(
             self.pos,
-            moore=True,
+            moore=False,
             include_center=False,
             radius = 1)
         cellmates = self.model.grid.get_cell_list_contents([self.pos])
