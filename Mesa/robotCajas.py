@@ -38,7 +38,7 @@ class RobotAgent(Agent):
 
         if len(cellmates) != 0:
             for i in cellmates:
-                if i.tipo == "caja":
+                if i.tipo == "caja" and self.tipo == "robot":
                     self.tieneCaja = True
                     self.tipo = "robotCaja"
                     i.tipo = "vacio"
@@ -49,14 +49,11 @@ class RobotAgent(Agent):
                         self.model.cajas -= 1
                         self.tieneCaja = False
                         self.tipo = "robot"
-                    else:
-                        self.tipo = "robot"
                     
 
         if len(cellmates) == 0 or (self.tieneCaja is False and self.estaPila is False):
             new_position = self.random.choice(possibleSteps)
             cellmatesNewPos = self.model.grid.get_cell_list_contents([new_position])
-            print(f'Celmates{cellmatesNewPos}')
             if len(cellmatesNewPos) == 1:
                 if cellmatesNewPos[0].tipo != "robot" and \
                    cellmatesNewPos[0].tipo != "robotCaja" and \
@@ -66,15 +63,32 @@ class RobotAgent(Agent):
             elif len(cellmatesNewPos) == 0:
                 self.model.grid.move_agent(self, new_position)
                 self.movimientos += 1
+
         elif len(cellmates) == 0 or (self.tieneCaja is True and self.estaPila is False):
             diffX = self.pos[0] - self.model.posPilas[0][0]
             diffY = self.pos[1] - self.model.posPilas[0][1]
             if diffX > 0:
                 newPos = (self.pos[0] - 1, self.pos[1])
                 self.model.grid.move_agent(self, newPos)
+                self.movimientos += 1
             elif diffY < 0:
                 newPos = (self.pos[0], self.pos[1] + 1)
                 self.model.grid.move_agent(self, newPos)
+                self.movimientos += 1
+
+        elif len(cellmates) == 0 or (self.tieneCaja is False and self.estaPila is True):
+            new_position = self.random.choice(possibleSteps)
+            cellmatesNewPos = self.model.grid.get_cell_list_contents([new_position])
+            if len(cellmatesNewPos) == 1:
+                if cellmatesNewPos[0].tipo != "robot" and \
+                   cellmatesNewPos[0].tipo != "robotCaja" and \
+                   cellmatesNewPos[0].tipo != "pared":
+                    self.model.grid.move_agent(self, new_position)
+                    self.movimientos += 1
+            elif len(cellmatesNewPos) == 0:
+                self.model.grid.move_agent(self, new_position)
+                self.movimientos += 1
+
 
     def step(self):
         if self.model.pasosTotales > 0 and self.model.cajas > 0:
