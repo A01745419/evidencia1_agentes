@@ -25,7 +25,7 @@ def agent_portrayal(agent):
                  "r": 0.8}
 
     portrayal4 = {"Shape": "circle",
-                 "Filled": "true",
+                  "Filled": "true",
                  "Layer": 0,
                  "Color": "brown",
                  "r": 0.5}

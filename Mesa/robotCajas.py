@@ -100,6 +100,7 @@ class AcomodarCajasModel(Model):
         self.running = True
         celdas = []
         self.pilas = boxes // agents
+        self.hEstante = height - 2
         #self.maxPilas = 5
 
         for (content, x, y) in self.grid.coord_iter():
@@ -125,9 +126,13 @@ class AcomodarCajasModel(Model):
             a = PilaAgent(i, self)
             #self.schedule.add(a)
             # Add the agent to a random grid cell
-            pos = self.random.choice(celdas)
-            self.grid.place_agent(a, (pos[0], pos[1])) 
-            celdas.remove(pos)
+            # pos = self.random.choice(celdas)
+            # self.grid.place_agent(a, (pos[0], pos[1])) 
+            # celdas.remove(pos)
+            
+            for i in range(1, self.pilas + 1):
+                self.grid.place_agent(a, (i, self.hEstante))
+                # celdas.remove([i, 1])
 
     def step(self):
         self.schedule.step()
