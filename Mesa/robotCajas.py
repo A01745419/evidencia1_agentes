@@ -48,6 +48,7 @@ class RobotAgent(Agent):
                     if self.tieneCaja is True:
                         self.model.cajas -= 1
                         self.tieneCaja = False
+                        self.estaPila = False
                         self.tipo = "robot"
                     
 
