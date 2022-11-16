@@ -50,6 +50,8 @@ class RobotAgent(Agent):
                         self.tieneCaja = False
                         self.estaPila = False
                         self.tipo = "robot"
+                    else:
+                        self.estaPila = False
                     
 
         if len(cellmates) == 0 or (self.tieneCaja is False and self.estaPila is False):
@@ -58,7 +60,8 @@ class RobotAgent(Agent):
             if len(cellmatesNewPos) == 1:
                 if cellmatesNewPos[0].tipo != "robot" and \
                    cellmatesNewPos[0].tipo != "robotCaja" and \
-                   cellmatesNewPos[0].tipo != "pared":
+                   cellmatesNewPos[0].tipo != "pared" and \
+                   cellmatesNewPos[0].tipo != "pila":
                     self.model.grid.move_agent(self, new_position)
                     self.movimientos += 1
             elif len(cellmatesNewPos) == 0:
@@ -141,7 +144,7 @@ class AcomodarCajasModel(Model):
         self.schedule = SimultaneousActivation(self)
         self.running = True
         celdas = []
-        self.pilas = boxes // agents
+        self.pilas = width -2
         self.hEstante = height - 2
         self.posPilas = []
         # self.maxPilas = 5
