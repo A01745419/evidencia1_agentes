@@ -63,10 +63,18 @@ class RobotAgent(Agent):
                    cellmatesNewPos[0].tipo != "pared":
                     self.model.grid.move_agent(self, new_position)
                     self.movimientos += 1
-                    print(self.pos)
             elif len(cellmatesNewPos) == 0:
                 self.model.grid.move_agent(self, new_position)
                 self.movimientos += 1
+        elif len(cellmates) == 0 or (self.tieneCaja is True and self.estaPila is False):
+            diffX = self.pos[0] - self.model.posPilas[0][0]
+            diffY = self.pos[1] - self.model.posPilas[0][1]
+            if diffX > 0:
+                newPos = (self.pos[0] - 1, self.pos[1])
+                self.model.grid.move_agent(self, newPos)
+            elif diffY < 0:
+                newPos = (self.pos[0], self.pos[1] + 1)
+                self.model.grid.move_agent(self, newPos)
 
     def step(self):
         if self.model.pasosTotales > 0 and self.model.cajas > 0:
