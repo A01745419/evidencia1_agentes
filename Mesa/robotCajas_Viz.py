@@ -7,34 +7,40 @@ def agent_portrayal(agent):
     Define el color que tendra cada agente en cierto estado.
     '''
     portrayal = {"Shape": "circle",
-                 "Filled": "false",
-                 "Layer": 0,
-                 "Color": "gray",
-                 "r": 0.8}
+                  "Filled": "false",
+                  "Layer": 0,
+                  "Color": "gray",
+                  "r": 0.8}
 
     portrayal2 = {"Shape": "circle",
-                 "Filled": "true",
-                 "Layer": 0,
-                 "Color": "black",
-                 "r": 0.8}
+                  "Filled": "true",
+                  "Layer": 0,
+                  "Color": "black",
+                  "r": 0.8}
 
     portrayal3 = {"Shape": "circle",
-                 "Filled": "true",
-                 "Layer": 0,
-                 "Color": "blue",
-                 "r": 0.8}
+                  "Filled": "true",
+                  "Layer": 0,
+                  "Color": "blue",
+                  "r": 0.8}
 
     portrayal4 = {"Shape": "circle",
                   "Filled": "true",
-                 "Layer": 0,
-                 "Color": "brown",
-                 "r": 0.5}
+                  "Layer": 0,
+                  "Color": "brown",
+                  "r": 0.5}
 
     portrayal5 = {"Shape": "circle",
-                 "Filled": "true",
-                 "Layer": 0,
-                 "Color": "brown",
-                 "r": 0}
+                  "Filled": "true",
+                  "Layer": 0,
+                  "Color": "brown",
+                  "r": 0}
+
+    portrayal6 = {"Shape": "circle",
+                  "Filled": "true",
+                  "Layer": 0,
+                  "Color": "green",
+                  "r": 0.8}
 
     if agent.tipo == "robot":
         return portrayal
@@ -44,8 +50,11 @@ def agent_portrayal(agent):
         return portrayal3
     elif agent.tipo == "caja":
         return portrayal4
+    elif agent.tipo == "pared":
+        return portrayal6
     else:
         return portrayal5
+
 
 ancho = 15
 alto = 15

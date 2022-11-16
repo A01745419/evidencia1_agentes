@@ -15,6 +15,7 @@ from mesa.time import SimultaneousActivation
 import numpy as np
 from mesa.datacollection import DataCollector
 
+
 class RobotAgent(Agent):
     '''
     Representa a un robot que acomoda cajas en pilas.
@@ -50,7 +51,7 @@ class RobotAgent(Agent):
             new_position = self.random.choice(possibleSteps)
             cellmatesNewPos = self.model.grid.get_cell_list_contents([new_position])
             if len(cellmatesNewPos) == 1:
-                if cellmatesNewPos[0].tipo != "robot" and cellmatesNewPos[0].tipo != "robotCaja":
+                if cellmatesNewPos[0].tipo != "robot" and cellmatesNewPos[0].tipo != "robotCaja" and cellmatesNewPos[0].tipo != "pared":
                     self.model.grid.move_agent(self, new_position)
                     self.movimientos += 1
             elif len(cellmatesNewPos) == 0:
@@ -75,6 +76,7 @@ class CajaAgent(Agent):
         self.tipo = "caja"
         self.movimientos = 0
 
+
 class PilaAgent(Agent):
     '''
     Representa a una pila que contiene cajas (max 5).
@@ -85,9 +87,17 @@ class PilaAgent(Agent):
         self.numCajas = 0
         self.movimientos = 0
 
+
+class ParedAgent(Agent):
+    def __init__(self, unique_id, model):
+        super().__init__(unique_id, model)
+        self.tipo = "pared"
+
+
 class AcomodarCajasModel(Model):
     '''
-    Representa el modelo que genera agentes y sus comportamientos en su ambiente.
+    Representa el modelo que genera agentes y sus
+    comportamientos en su ambiente.
     '''
     def __init__(self, width, height, agents, boxes, steps):
         self.ancho = width
@@ -101,41 +111,55 @@ class AcomodarCajasModel(Model):
         celdas = []
         self.pilas = boxes // agents
         self.hEstante = height - 2
-        #self.maxPilas = 5
+        # self.maxPilas = 5
 
         for (content, x, y) in self.grid.coord_iter():
             celdas.append([x, y])
 
+        # Hace los muebles
+        for i in range(self.pilas):
+            a = PilaAgent(i, self)
+            self.grid.place_agent(a, (i + 1, self.hEstante))
+            pos = [i + 1, self.hEstante]
+            celdas.remove(pos)
+
+        # Hace el muro y
+        for i in range(0, height):
+            a = ParedAgent(i, self)
+            self.grid.place_agent(a, (0, i))
+            self.grid.place_agent(a, (width - 1, i))
+            pos = [0, i]
+            pos2 = [width - 1, i]
+            celdas.remove(pos)
+            celdas.remove(pos2)
+
+        # Hace el muro x
+        for i in range(1, width - 1):
+            a = ParedAgent(i, self)
+            self.grid.place_agent(a, (i, 0))
+            self.grid.place_agent(a, (i, height - 1))
+            pos = [i, 0]
+            pos2 = [i, height - 1]
+            celdas.remove(pos)
+            celdas.remove(pos2)
+
+        # Robot
         for i in range(self.agentes):
             a = RobotAgent(i, self)
             self.schedule.add(a)
-            #self.grid.place_agent(a, (1, 1))
             pos = self.random.choice(celdas)
             self.grid.place_agent(a, (pos[0], pos[1]))
-            celdas.remove(pos) 
         
+        # Caja
         for i in range(self.cajas):
             a = CajaAgent(i, self)
-            #self.schedule.add(a)
-            # Add the agent to a random grid cell
             pos = self.random.choice(celdas)
             self.grid.place_agent(a, (pos[0], pos[1])) 
             celdas.remove(pos)
-        
-        for i in range(self.pilas):
-            a = PilaAgent(i, self)
-            #self.schedule.add(a)
-            # Add the agent to a random grid cell
-            # pos = self.random.choice(celdas)
-            # self.grid.place_agent(a, (pos[0], pos[1])) 
-            # celdas.remove(pos)
-            
-            for i in range(1, self.pilas + 1):
-                self.grid.place_agent(a, (i, self.hEstante))
-                # celdas.remove([i, 1])
 
     def step(self):
         self.schedule.step()
         print("Cajas restantes para acomodar: ", self.cajas)
         print("Movimientos restantes: ", self.pasosTotales)
         print(" ")
+
