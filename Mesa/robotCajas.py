@@ -42,16 +42,11 @@ class RobotAgent(Agent):
                     self.estaPila = True
                     if self.tipo == "robotCaja":
                         self.tieneCaja = False
-                        self.estaPila = False
-                        self.estaPilaLlena = False
                     else:
                         self.estaPila = False
 
                 elif i.tipo == "pilaLlena":
-                    if self.tieneCaja == True:
-                        self.estaPilaLlena = False
-                    else:
-                        self.estaPilaLlena = True
+                    self.estaPilaLlena = True
 
 
     def buscarCajas(self):
@@ -143,18 +138,24 @@ class RobotAgent(Agent):
                 self.model.pasosTotales -= 1
             cellmates = self.model.grid.get_cell_list_contents([self.pos])
             for i in cellmates:
-                if i.tipo == "pila":
-                    if i.numCajas < 5:
-                        self.dejarCaja()
-                        i.numCajas += 1
-                        print(f'Numero de cajas PILA: {i.numCajas}')
-                        self.model.cajas -= 1
-                        self.tipo = "robot"
-                    else:
-                        i.tipo = "pilaLlena"
-                elif i.tipo == "pilaLlena":
-                    self.moversePilaLlena()
-                    self.model.pasosTotales -= 1
+                if i.tipo == "pilaLlena":
+                    if self.tieneCaja == True:
+                        self.moversePilaLlena()
+                        self.model.pasosTotales -= 1
+                elif i.tipo == "pila":
+                    if self.tieneCaja == True:
+                        if i.numCajas < 5:
+                            i.numCajas += 1
+                            print(f'Numero de cajas PILA: {i.numCajas}')
+                            self.model.cajas -= 1
+                            self.tipo = "robot"
+                            self.tieneCaja = False
+                        else:
+                            i.tipo = "pilaLlena"
+                            self.model.posPilas.pop(0)
+                            self.tipo = "robot"
+                            self.tieneCaja = False
+                
 
 
                 # if i.tipo == "pila":
