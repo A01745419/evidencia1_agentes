@@ -25,6 +25,7 @@ class RobotAgent(Agent):
         self.tipo = "robot"
         self.tieneCaja = False
         self.estaPila = False
+        self.estaPilaLlena = False
         self.movimientos = 0
         self.numCajas = 0
 
@@ -43,22 +44,27 @@ class RobotAgent(Agent):
                     self.tieneCaja = True
                     self.tipo = "robotCaja"
                     i.tipo = "vacio"
-                elif i.tipo == "pila" or i.tipo == "pilaLlena":
+                elif i.tipo == "pila":
                     self.estaPila = True
+                elif i.tipo == "pilaLlena":
+                    self.estaPilaLlena = True
                 elif self.estaPila is True:
                     if self.tieneCaja is True:
-                        print(f'Numcajas: {i.numCajas}')
                         if i.numCajas < 5:
                             self.model.cajas -= 1
+                            i.numCajas += 1
+                            print(f'Tipo: {i.tipo}')
+                            print(f'Num cajas: {i.numCajas}')
                             self.tieneCaja = False
                             self.estaPila = False
                             self.tipo = "robot"
                         else:
-                            newPos = (self.pos[0] + 1, self.pos[1])
-                            self.model.grid.move_agent(self, [newPos])
                             i.tipo = "pilaLlena"
                     else:
                         self.estaPila = False
+                elif self.estaPilaLlena == True:
+                    self.estaPilaLlena = False
+
                     
 
         if len(cellmates) == 0 or (self.tieneCaja is False and self.estaPila is False):
@@ -114,6 +120,19 @@ class RobotAgent(Agent):
             elif len(cellmatesNewPos) == 0:
                 self.model.grid.move_agent(self, new_position)
                 self.movimientos += 1
+
+        elif len(cellmates) == 0 or (self.tieneCaja is True and self.estaPilaLlena is True):
+            newPos = (self.pos[0] + 1, self.pos[1])
+            cellmatesNewPos = self.model.grid.get_cell_list_contents([newPos])
+            if len(cellmatesNewPos) == 1:
+                if cellmatesNewPos[0].tipo != "robot" and \
+                   cellmatesNewPos[0].tipo != "robotCaja":
+                    self.model.grid.move_agent(self, newPos)
+                    self.movimientos += 1
+            elif len(cellmatesNewPos) == 0:
+                self.model.grid.move_agent(self, newPos)
+                self.movimientos += 1
+
 
 
     def step(self):
@@ -222,6 +241,5 @@ class AcomodarCajasModel(Model):
         self.schedule.step()
         print("Cajas restantes para acomodar: ", self.cajas)
         print("Movimientos restantes: ", self.pasosTotales)
-        print(f'selfpospilas {self.posPilas}')
         print(" ")
 
