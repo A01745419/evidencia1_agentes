@@ -42,6 +42,12 @@ def agent_portrayal(agent):
                   "Color": "green",
                   "r": 0.8}
 
+    portrayal7 = {"Shape": "circle",
+                  "Filled": "true",
+                  "Layer": 0,
+                  "Color": "purple",
+                  "r": 0.8}
+
     if agent.tipo == "robot":
         return portrayal
     elif agent.tipo == "robotCaja":
@@ -52,6 +58,8 @@ def agent_portrayal(agent):
         return portrayal4
     elif agent.tipo == "pared":
         return portrayal6
+    elif agent.tipo == "pilaLlena":
+        return portrayal7
     else:
         return portrayal5
 

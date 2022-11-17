@@ -26,6 +26,7 @@ class RobotAgent(Agent):
         self.tieneCaja = False
         self.estaPila = False
         self.movimientos = 0
+        self.numCajas = 0
 
     def move(self):
         possibleSteps = self.model.grid.get_neighborhood(
@@ -42,14 +43,20 @@ class RobotAgent(Agent):
                     self.tieneCaja = True
                     self.tipo = "robotCaja"
                     i.tipo = "vacio"
-                elif i.tipo == "pila":
+                elif i.tipo == "pila" or i.tipo == "pilaLlena":
                     self.estaPila = True
                 elif self.estaPila is True:
                     if self.tieneCaja is True:
-                        self.model.cajas -= 1
-                        self.tieneCaja = False
-                        self.estaPila = False
-                        self.tipo = "robot"
+                        print(f'Numcajas: {i.numCajas}')
+                        if i.numCajas < 5:
+                            self.model.cajas -= 1
+                            self.tieneCaja = False
+                            self.estaPila = False
+                            self.tipo = "robot"
+                        else:
+                            newPos = (self.pos[0] + 1, self.pos[1])
+                            self.model.grid.move_agent(self, [newPos])
+                            i.tipo = "pilaLlena"
                     else:
                         self.estaPila = False
                     
@@ -125,6 +132,7 @@ class CajaAgent(Agent):
         super().__init__(unique_id, model)
         self.tipo = "caja"
         self.movimientos = 0
+        self.numCajas = 0
 
 
 class PilaAgent(Agent):
@@ -142,6 +150,7 @@ class ParedAgent(Agent):
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
         self.tipo = "pared"
+        self.numCajas = 0
 
 
 class AcomodarCajasModel(Model):
