@@ -29,6 +29,7 @@ class RobotAgent(Agent):
         self.movimientos = 0
         self.numCajas = 0
 
+
     def move(self):
         possibleSteps = self.model.grid.get_neighborhood(
             self.pos,
