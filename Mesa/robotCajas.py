@@ -70,8 +70,21 @@ class RobotAgent(Agent):
     def irPila(self):
         diffX = self.pos[0] - self.model.posPilas[0][0]
         diffY = self.pos[1] - self.model.posPilas[0][1]
+        
         if diffX > 0:
             newPos = (self.pos[0] - 1, self.pos[1])
+            cellmatesNewPos = self.model.grid.get_cell_list_contents([newPos])
+            if len(cellmatesNewPos) == 1:
+                if cellmatesNewPos[0].tipo != "robot" and \
+                cellmatesNewPos[0].tipo != "robotCaja" and \
+                cellmatesNewPos[0].tipo != "pared":
+                    self.model.grid.move_agent(self, newPos)
+                    self.movimientos += 1
+            elif len(cellmatesNewPos) == 0:
+                self.model.grid.move_agent(self, newPos)
+                self.movimientos += 1
+        elif diffX < 0:
+            newPos = (self.pos[0] + 1, self.pos[1])
             cellmatesNewPos = self.model.grid.get_cell_list_contents([newPos])
             if len(cellmatesNewPos) == 1:
                 if cellmatesNewPos[0].tipo != "robot" and \
@@ -144,7 +157,7 @@ class RobotAgent(Agent):
                         self.model.pasosTotales -= 1
                 elif i.tipo == "pila":
                     if self.tieneCaja == True:
-                        if i.numCajas < 5:
+                        if i.numCajas < 4:
                             i.numCajas += 1
                             print(f'Numero de cajas PILA: {i.numCajas}')
                             self.model.cajas -= 1
