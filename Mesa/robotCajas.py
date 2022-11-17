@@ -60,8 +60,7 @@ class RobotAgent(Agent):
             if len(cellmatesNewPos) == 1:
                 if cellmatesNewPos[0].tipo != "robot" and \
                    cellmatesNewPos[0].tipo != "robotCaja" and \
-                   cellmatesNewPos[0].tipo != "pared" and \
-                   cellmatesNewPos[0].tipo != "pila":
+                   cellmatesNewPos[0].tipo != "pared":
                     self.model.grid.move_agent(self, new_position)
                     self.movimientos += 1
             elif len(cellmatesNewPos) == 0:
@@ -73,12 +72,28 @@ class RobotAgent(Agent):
             diffY = self.pos[1] - self.model.posPilas[0][1]
             if diffX > 0:
                 newPos = (self.pos[0] - 1, self.pos[1])
-                self.model.grid.move_agent(self, newPos)
-                self.movimientos += 1
+                cellmatesNewPos = self.model.grid.get_cell_list_contents([newPos])
+                if len(cellmatesNewPos) == 1:
+                    if cellmatesNewPos[0].tipo != "robot" and \
+                    cellmatesNewPos[0].tipo != "robotCaja" and \
+                    cellmatesNewPos[0].tipo != "pared":
+                        self.model.grid.move_agent(self, newPos)
+                        self.movimientos += 1
+                elif len(cellmatesNewPos) == 0:
+                    self.model.grid.move_agent(self, newPos)
+                    self.movimientos += 1
             elif diffY < 0:
                 newPos = (self.pos[0], self.pos[1] + 1)
-                self.model.grid.move_agent(self, newPos)
-                self.movimientos += 1
+                cellmatesNewPos = self.model.grid.get_cell_list_contents([newPos])
+                if len(cellmatesNewPos) == 1:
+                    if cellmatesNewPos[0].tipo != "robot" and \
+                    cellmatesNewPos[0].tipo != "robotCaja" and \
+                    cellmatesNewPos[0].tipo != "pared":
+                        self.model.grid.move_agent(self, newPos)
+                        self.movimientos += 1
+                elif len(cellmatesNewPos) == 0:
+                    self.model.grid.move_agent(self, newPos)
+                    self.movimientos += 1
 
         elif len(cellmates) == 0 or (self.tieneCaja is False and self.estaPila is True):
             new_position = self.random.choice(possibleSteps)
