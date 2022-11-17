@@ -37,21 +37,22 @@ class RobotAgent(Agent):
                     self.tieneCaja = True
                     self.tipo = "robotCaja"
                     i.tipo = "vacio"
+
                 elif i.tipo == "pila":
                     self.estaPila = True
-                elif i.tipo == "pilaLlena":
-                    self.estaPilaLlena = True
-
-                elif self.estaPila == True:
-                    if self.tieneCaja == True:
-                        i.tipo == "robot"
+                    if self.tipo == "robotCaja":
                         self.tieneCaja = False
                         self.estaPila = False
+                        self.estaPilaLlena = False
                     else:
                         self.estaPila = False
-                
-                elif self.estaPilaLlena == True:
-                    self.estaPilaLlena == False
+
+                elif i.tipo == "pilaLlena":
+                    if self.tieneCaja == True:
+                        self.estaPilaLlena = False
+                    else:
+                        self.estaPilaLlena = True
+
 
     def buscarCajas(self):
         possibleSteps = self.model.grid.get_neighborhood(
@@ -59,49 +60,45 @@ class RobotAgent(Agent):
             moore=False,
             include_center=False,
             radius=1)
-        cellmates = self.model.grid.get_cell_list_contents([self.pos])
-        if len(cellmates) == 0 or (self.tieneCaja is False and self.estaPila is False):
-            new_position = self.random.choice(possibleSteps)
-            cellmatesNewPos = self.model.grid.get_cell_list_contents([new_position])
-            if len(cellmatesNewPos) == 1:
-                if cellmatesNewPos[0].tipo != "robot" and \
-                   cellmatesNewPos[0].tipo != "robotCaja" and \
-                   cellmatesNewPos[0].tipo != "pared":
-                    self.model.grid.move_agent(self, new_position)
-                    self.movimientos += 1
-            elif len(cellmatesNewPos) == 0:
+        new_position = self.random.choice(possibleSteps)
+        cellmatesNewPos = self.model.grid.get_cell_list_contents([new_position])
+        if len(cellmatesNewPos) == 1:
+            if cellmatesNewPos[0].tipo != "robot" and \
+                cellmatesNewPos[0].tipo != "robotCaja" and \
+                cellmatesNewPos[0].tipo != "pared":
                 self.model.grid.move_agent(self, new_position)
                 self.movimientos += 1
+        elif len(cellmatesNewPos) == 0:
+            self.model.grid.move_agent(self, new_position)
+            self.movimientos += 1
 
     def irPila(self):
-        cellmates = self.model.grid.get_cell_list_contents([self.pos])
-        if len(cellmates) == 0 or (self.tieneCaja is True and self.estaPila is False):
-            diffX = self.pos[0] - self.model.posPilas[0][0]
-            diffY = self.pos[1] - self.model.posPilas[0][1]
-            if diffX > 0:
-                newPos = (self.pos[0] - 1, self.pos[1])
-                cellmatesNewPos = self.model.grid.get_cell_list_contents([newPos])
-                if len(cellmatesNewPos) == 1:
-                    if cellmatesNewPos[0].tipo != "robot" and \
-                    cellmatesNewPos[0].tipo != "robotCaja" and \
-                    cellmatesNewPos[0].tipo != "pared":
-                        self.model.grid.move_agent(self, newPos)
-                        self.movimientos += 1
-                elif len(cellmatesNewPos) == 0:
+        diffX = self.pos[0] - self.model.posPilas[0][0]
+        diffY = self.pos[1] - self.model.posPilas[0][1]
+        if diffX > 0:
+            newPos = (self.pos[0] - 1, self.pos[1])
+            cellmatesNewPos = self.model.grid.get_cell_list_contents([newPos])
+            if len(cellmatesNewPos) == 1:
+                if cellmatesNewPos[0].tipo != "robot" and \
+                cellmatesNewPos[0].tipo != "robotCaja" and \
+                cellmatesNewPos[0].tipo != "pared":
                     self.model.grid.move_agent(self, newPos)
                     self.movimientos += 1
-            elif diffY < 0:
-                newPos = (self.pos[0], self.pos[1] + 1)
-                cellmatesNewPos = self.model.grid.get_cell_list_contents([newPos])
-                if len(cellmatesNewPos) == 1:
-                    if cellmatesNewPos[0].tipo != "robot" and \
-                    cellmatesNewPos[0].tipo != "robotCaja" and \
-                    cellmatesNewPos[0].tipo != "pared":
-                        self.model.grid.move_agent(self, newPos)
-                        self.movimientos += 1
-                elif len(cellmatesNewPos) == 0:
+            elif len(cellmatesNewPos) == 0:
+                self.model.grid.move_agent(self, newPos)
+                self.movimientos += 1
+        elif diffY < 0:
+            newPos = (self.pos[0], self.pos[1] + 1)
+            cellmatesNewPos = self.model.grid.get_cell_list_contents([newPos])
+            if len(cellmatesNewPos) == 1:
+                if cellmatesNewPos[0].tipo != "robot" and \
+                cellmatesNewPos[0].tipo != "robotCaja" and \
+                cellmatesNewPos[0].tipo != "pared":
                     self.model.grid.move_agent(self, newPos)
                     self.movimientos += 1
+            elif len(cellmatesNewPos) == 0:
+                self.model.grid.move_agent(self, newPos)
+                self.movimientos += 1
 
     def dejarCaja(self):
         possibleSteps = self.model.grid.get_neighborhood(
@@ -109,33 +106,30 @@ class RobotAgent(Agent):
             moore=False,
             include_center=False,
             radius=1)
-        cellmates = self.model.grid.get_cell_list_contents([self.pos])
-        if len(cellmates) == 0 or (self.tieneCaja is False and self.estaPila is True):
-            new_position = self.random.choice(possibleSteps)
-            cellmatesNewPos = self.model.grid.get_cell_list_contents([new_position])
-            if len(cellmatesNewPos) == 1:
-                if cellmatesNewPos[0].tipo != "robot" and \
-                   cellmatesNewPos[0].tipo != "robotCaja" and \
-                   cellmatesNewPos[0].tipo != "pared":
-                    self.model.grid.move_agent(self, new_position)
-                    self.movimientos += 1
-            elif len(cellmatesNewPos) == 0:
+        new_position = self.random.choice(possibleSteps)
+        cellmatesNewPos = self.model.grid.get_cell_list_contents([new_position])
+        if len(cellmatesNewPos) == 1:
+            if cellmatesNewPos[0].tipo != "robot" and \
+                cellmatesNewPos[0].tipo != "robotCaja" and \
+                cellmatesNewPos[0].tipo != "pared":
                 self.model.grid.move_agent(self, new_position)
                 self.movimientos += 1
+        elif len(cellmatesNewPos) == 0:
+            self.model.grid.move_agent(self, new_position)
+            self.movimientos += 1
 
     def moversePilaLlena(self):
-        cellmates = self.model.grid.get_cell_list_contents([self.pos])
-        if len(cellmates) == 0 or (self.tieneCaja is True and self.estaPilaLlena is True):
-            newPos = (self.pos[0] + 1, self.pos[1])
-            cellmatesNewPos = self.model.grid.get_cell_list_contents([newPos])
-            if len(cellmatesNewPos) == 1:
-                if cellmatesNewPos[0].tipo != "robot" and \
-                   cellmatesNewPos[0].tipo != "robotCaja":
-                    self.model.grid.move_agent(self, newPos)
-                    self.movimientos += 1
-            elif len(cellmatesNewPos) == 0:
+        newPos = (self.pos[0] + 1, self.pos[1])
+        cellmatesNewPos = self.model.grid.get_cell_list_contents([newPos])
+        if len(cellmatesNewPos) == 1:
+            if cellmatesNewPos[0].tipo != "robot" and \
+                cellmatesNewPos[0].tipo != "robotCaja" and \
+                cellmatesNewPos[0].tipo != "pared":
                 self.model.grid.move_agent(self, newPos)
                 self.movimientos += 1
+        elif len(cellmatesNewPos) == 0:
+            self.model.grid.move_agent(self, newPos)
+            self.movimientos += 1
 
 
     def step(self):
@@ -151,21 +145,40 @@ class RobotAgent(Agent):
             for i in cellmates:
                 if i.tipo == "pila":
                     if i.numCajas < 5:
-                        if self.tieneCaja == True:
-                            self.dejarCaja()
-                            i.numCajas += 1
-                            print(f'Numero de cajas PILA: {i.numCajas}')
-                            self.model.cajas -= 1
-                            self.tipo = "robot"
-                        else:
-                            self.buscarCajas()
-                            self.model.pasosTotales -= 1
+                        self.dejarCaja()
+                        i.numCajas += 1
+                        print(f'Numero de cajas PILA: {i.numCajas}')
+                        self.model.cajas -= 1
+                        self.tipo = "robot"
                     else:
                         i.tipo = "pilaLlena"
-                
                 elif i.tipo == "pilaLlena":
                     self.moversePilaLlena()
                     self.model.pasosTotales -= 1
+
+
+                # if i.tipo == "pila":
+                #     if i.numCajas < 5:
+                #         if self.tieneCaja == True:
+                #             #self.dejarCaja()
+                #             i.numCajas += 1
+                #             print(f'Numero de cajas PILA: {i.numCajas}')
+                #             self.model.cajas -= 1
+                #             self.tipo = "robot"
+                #             self.estaPilaLlena = False
+                #         else:
+                #             self.buscarCajas()
+                #             self.model.pasosTotales -= 1
+                #     else:
+                #         i.tipo = "pilaLlena"
+                
+                # elif i.tipo == "pilaLlena":
+                #     if self.tieneCaja == True:
+                #         self.moversePilaLlena()
+                #         self.model.pasosTotales -= 1
+                #     else:
+                #         self.buscarCajas()
+                #         self.model.pasosTotales -= 1
                     
 
 
