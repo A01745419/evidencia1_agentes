@@ -62,7 +62,8 @@ class RobotAgent(Agent):
                 cellmatesNewPos[0].tipo != "robotCaja" and \
                 cellmatesNewPos[0].tipo != "pared" and \
                 cellmatesNewPos[0].tipo != "pila" and \
-                cellmatesNewPos[0].tipo != "pilaLlena":
+                cellmatesNewPos[0].tipo != "pilaLlena" and \
+                cellmatesNewPos[0].tipo != "puerta":
                 self.model.grid.move_agent(self, new_position)
                 self.movimientos += 1
         elif len(cellmatesNewPos) == 0:
@@ -79,7 +80,8 @@ class RobotAgent(Agent):
             if len(cellmatesNewPos) == 1:
                 if cellmatesNewPos[0].tipo != "robot" and \
                 cellmatesNewPos[0].tipo != "robotCaja" and \
-                cellmatesNewPos[0].tipo != "pared":
+                cellmatesNewPos[0].tipo != "pared" and \
+                cellmatesNewPos[0].tipo != "puerta":
                     self.model.grid.move_agent(self, newPos)
                     self.movimientos += 1
             elif len(cellmatesNewPos) == 0:
@@ -91,7 +93,8 @@ class RobotAgent(Agent):
             if len(cellmatesNewPos) == 1:
                 if cellmatesNewPos[0].tipo != "robot" and \
                 cellmatesNewPos[0].tipo != "robotCaja" and \
-                cellmatesNewPos[0].tipo != "pared":
+                cellmatesNewPos[0].tipo != "pared" and \
+                cellmatesNewPos[0].tipo != "puerta":
                     self.model.grid.move_agent(self, newPos)
                     self.movimientos += 1
             elif len(cellmatesNewPos) == 0:
@@ -103,7 +106,8 @@ class RobotAgent(Agent):
             if len(cellmatesNewPos) == 1:
                 if cellmatesNewPos[0].tipo != "robot" and \
                 cellmatesNewPos[0].tipo != "robotCaja" and \
-                cellmatesNewPos[0].tipo != "pared":
+                cellmatesNewPos[0].tipo != "pared" and \
+                cellmatesNewPos[0].tipo != "puerta":
                     self.model.grid.move_agent(self, newPos)
                     self.movimientos += 1
             elif len(cellmatesNewPos) == 0:
@@ -115,7 +119,8 @@ class RobotAgent(Agent):
             if len(cellmatesNewPos) == 1:
                 if cellmatesNewPos[0].tipo != "robot" and \
                 cellmatesNewPos[0].tipo != "robotCaja" and \
-                cellmatesNewPos[0].tipo != "pared":
+                cellmatesNewPos[0].tipo != "pared" and \
+                cellmatesNewPos[0].tipo != "puerta":
                     self.model.grid.move_agent(self, newPos)
                     self.movimientos += 1
             elif len(cellmatesNewPos) == 0:
@@ -164,7 +169,6 @@ class CajaAgent(Agent):
         super().__init__(unique_id, model)
         self.tipo = "caja"
         self.movimientos = 0
-        self.numCajas = 0
 
 
 class PilaAgent(Agent):
@@ -179,10 +183,22 @@ class PilaAgent(Agent):
 
 
 class ParedAgent(Agent):
+    '''
+    Representa a una pared que se encontrara en el contorno.
+    '''
     def __init__(self, unique_id, model):
         super().__init__(unique_id, model)
         self.tipo = "pared"
-        self.numCajas = 0
+        self.movimientos = 0
+
+class PuertaAgent(Agent):
+    '''
+    Representa una puerta que estara entre la pared.
+    '''
+    def __init__(self, unique_id, model):
+        super().__init__(unique_id, model)
+        self.tipo = "puerta"
+        self.movimientos = 0
 
 
 class AcomodarCajasModel(Model):
@@ -203,12 +219,15 @@ class AcomodarCajasModel(Model):
         self.pilas = width -2
         self.hEstante = height - 2
         self.posPilas = []
-        # self.maxPilas = 5
+        self.dataCollectorMovements = DataCollector(
+            model_reporters={"Total Movements":AcomodarCajasModel.calculateMovements},
+            agent_reporters={}
+        )
 
         for (content, x, y) in self.grid.coord_iter():
             celdas.append([x, y])
 
-        # Hace el muro y
+        # Hace el muro y completo izquierda y derecha
         for i in range(0, height):
             a = ParedAgent(i, self)
             self.grid.place_agent(a, (0, i))
@@ -218,15 +237,32 @@ class AcomodarCajasModel(Model):
             celdas.remove(pos)
             celdas.remove(pos2)
 
-        # Hace el muro x
+        # Hace el muro x completo arriba
         for i in range(1, width - 1):
             a = ParedAgent(i, self)
-            self.grid.place_agent(a, (i, 0))
             self.grid.place_agent(a, (i, height - 1))
-            pos = [i, 0]
-            pos2 = [i, height - 1]
+            pos = [i, height - 1]
             celdas.remove(pos)
-            celdas.remove(pos2)
+
+        # Hace el muro x parte 1 abajo
+        for i in range(1, (width // 2)):
+            a = ParedAgent(i, self)
+            self.grid.place_agent(a, (i, 0))
+            pos = [i, 0]
+            celdas.remove(pos)
+
+        # Hace puerte entre muro abajo
+        a = PuertaAgent(1, self)
+        self.grid.place_agent(a, ((width // 2), 0))
+        pos = [(width // 2), 0]
+        celdas.remove(pos)
+
+        # Hace el muro x parte 2 abajo
+        for i in range((width // 2) + 1, width - 1):
+            a = ParedAgent(i, self)
+            self.grid.place_agent(a, (i, 0))
+            pos = [i, 0]
+            celdas.remove(pos)
 
         # Hace los muebles
         for i in range(self.pilas):
@@ -251,10 +287,20 @@ class AcomodarCajasModel(Model):
             self.grid.place_agent(a, (pos[0], pos[1])) 
             celdas.remove(pos)
 
+    def calculateMovements(model):
+        '''
+        Regresa los movimientos totales que van realizando todos los agentes
+        en cada step.
+        '''
+        totalMovements = 0
+        movementsReport = [agent.movimientos for agent in model.schedule.agents]
+        for x in movementsReport:
+            totalMovements += x
+        return totalMovements
+
     def step(self):
         self.schedule.step()
         print("Cajas restantes para acomodar: ", self.cajas)
-        print("Movimientos restantes: ", self.pasosTotales)
-        print("Posiciones pilas: ", self.posPilas)
+        print("Movimientos restantes para todos los agentes: ", self.pasosTotales)
         print(" ")
 

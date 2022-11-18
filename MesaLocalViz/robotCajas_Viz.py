@@ -1,6 +1,7 @@
 from robotCajas import *
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
+from mesa.visualization.modules import ChartModule
 
 def agent_portrayal(agent):
     '''
@@ -47,6 +48,12 @@ def agent_portrayal(agent):
                   "Layer": 0,
                   "Color": "purple",
                   "r": 0.8}
+    
+    portrayal8 = {"Shape": "circle",
+                  "Filled": "true",
+                  "Layer": 0,
+                  "Color": "orange",
+                  "r": 0.8}
 
     if agent.tipo == "robot":
         return portrayal
@@ -60,6 +67,8 @@ def agent_portrayal(agent):
         return portrayal6
     elif agent.tipo == "pilaLlena":
         return portrayal7
+    elif agent.tipo == "puerta":
+        return portrayal8
     else:
         return portrayal5
 
@@ -70,8 +79,9 @@ robots = 5
 cajas = 20
 pasos = 5000000
 grid = CanvasGrid(agent_portrayal, ancho, alto, 750, 750)
+totalMovementsGraph = ChartModule([{"Label": "Total Movements", "Color": "Red"}], data_collector_name='dataCollectorMovements')
 server = ModularServer(AcomodarCajasModel,
-                       [grid],
+                       [grid, totalMovementsGraph],
                        "Robot Acomoda Cajas",
                        {"width":ancho, "height":alto, "agents": robots, "boxes": cajas, "steps": pasos})
 server.port = 8521 # The default
