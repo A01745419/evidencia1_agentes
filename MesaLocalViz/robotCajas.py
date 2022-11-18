@@ -147,7 +147,8 @@ class RobotAgent(Agent):
                             self.tieneCaja = False
                         else:
                             i.tipo = "pilaLlena"
-                            self.model.posPilas.pop(0)
+                            posLlena = [i.pos[0], i.pos[1]]
+                            self.model.posPilas.remove(posLlena)
                             self.tipo = "robot"
                             self.tieneCaja = False
                             self.model.cajas -= 1
@@ -253,5 +254,6 @@ class AcomodarCajasModel(Model):
         self.schedule.step()
         print("Cajas restantes para acomodar: ", self.cajas)
         print("Movimientos restantes: ", self.pasosTotales)
+        print("Posiciones pilas: ", self.posPilas)
         print(" ")
 
