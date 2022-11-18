@@ -300,7 +300,9 @@ class AcomodarCajasModel(Model):
 
     def step(self):
         self.schedule.step()
+        self.dataCollectorMovements.collect(self)
         print("Cajas restantes para acomodar: ", self.cajas)
         print("Movimientos restantes para todos los agentes: ", self.pasosTotales)
+        print("Movimientos realizados por todos los agentes: ", self.calculateMovements)
         print(" ")
 
