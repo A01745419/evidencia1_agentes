@@ -3,14 +3,17 @@
 # Octavio Navarro. October 2021
 
 from flask import Flask, request, jsonify
-from RandomAgents import *
+from robotCajas import *
+from mesa.visualization.modules import CanvasGrid
+from mesa.visualization.ModularVisualization import ModularServer
 
 # Size of the board:
-number_agents = 10
-width = 28
-height = 28
-randomModel = None
-currentStep = 0
+# ancho = 15
+# alto = 15
+# robots = 5
+# cajas = 20
+# pasos = 5000000
+# grid = CanvasGrid(ancho, alto, 750, 750)
 
 app = Flask("Traffic example")
 
@@ -24,11 +27,13 @@ def initModel():
         number_agents = int(request.form.get('NAgents'))
         width = int(request.form.get('width'))
         height = int(request.form.get('height'))
+        cajas = int(request.form.get('cajas'))
+        pasos = int(request.form.get('pasos'))  
         currentStep = 0
 
         print(request.form)
         print(number_agents, width, height)
-        randomModel = RandomModel(number_agents, width, height)
+        randomModel = AcomodarCajasModel(width, height, number_agents, cajas, pasos)
 
         return jsonify({"message":"Parameters recieved, model initiated."})
 
@@ -37,7 +42,7 @@ def getAgents():
     global randomModel
 
     if request.method == 'GET':
-        agentPositions = [{"id": str(a.unique_id), "x": x, "y":1, "z":z} for (a, x, z) in randomModel.grid.coord_iter() if isinstance(a, RandomAgent)]
+        agentPositions = [{"id": str(agent.unique_id), "x": x, "y":1, "z":z} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, RobotAgent)]
 
         return jsonify({'positions':agentPositions})
 
@@ -46,9 +51,27 @@ def getObstacles():
     global randomModel
 
     if request.method == 'GET':
-        carPositions = [{"id": str(a.unique_id), "x": x, "y":1, "z":z} for (a, x, z) in randomModel.grid.coord_iter() if isinstance(a, ObstacleAgent)]
+        carPositions = [{"id": str(agent.unique_id), "x": x, "y":1, "z":z} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, ParedAgent) ]
 
         return jsonify({'positions':carPositions})
+
+@app.route('/getCajas', methods=['GET'])
+def getCajas():
+    global randomModel
+
+    if request.method == 'GET':
+        boxPosition = [{"id": str(agent.unique_id), "x": x, "y": 1, "z": z} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, CajaAgent)]
+
+        return jsonify({'positions': boxPosition})
+
+@app.route('/getPilas', methods=['GET'])
+def getPilas():
+    global randomModel
+
+    if request.method == 'GET':
+        pilaPosition = [{"id": str(agent.unique_id), "x": x, "y": 1, "z": z} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, PilaAgent)]
+
+        return jsonify({'positions': pilaPosition})
 
 @app.route('/update', methods=['GET'])
 def updateModel():
