@@ -42,7 +42,7 @@ def getAgents():
     global randomModel
 
     if request.method == 'GET':
-        agentPositions = [{"id": str(agent.unique_id), "x": x, "y":1, "z":z} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, RobotAgent)]
+        agentPositions = [{"id": str(agent.unique_id), "x": x, "y": 1, "z": z, "tieneCaja": bool(agent.tieneCaja)} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, RobotAgent)]
 
         return jsonify({'positions':agentPositions})
 

@@ -14,13 +14,15 @@ public class AgentData
 {
     public string id;
     public float x, y, z;
+    public bool caja;
 
-    public AgentData(string id, float x, float y, float z)
+    public AgentData(string id, float x, float y, float z, bool caja)
     {
         this.id = id;
         this.x = x;
         this.y = y;
         this.z = z;
+        this.caja = caja;
     }
 }
 
@@ -33,12 +35,16 @@ public class AgentsData
     public AgentsData() => this.positions = new List<AgentData>();
 }
 
+[Serializable]
+
 public class CajasData
 {
     public List<AgentData> positions;
 
     public CajasData() => this.positions = new List<AgentData>();
 }
+
+[Serializable]  
 
 public class PilasData
 {
@@ -59,12 +65,12 @@ public class AgentController : MonoBehaviour
     string sendConfigEndpoint = "/init";
     string updateEndpoint = "/update";
     AgentsData agentsData, obstacleData, cajasData, pilasData;
-    Dictionary<string, GameObject> agents;
+    Dictionary<string, GameObject> agents, robotCaja;
     Dictionary<string, Vector3> prevPositions, currPositions;
 
     bool updated = false, started = false;
 
-    public GameObject agentPrefab, obstaclePrefab, floor, box, pile;
+    public GameObject agentPrefab, obstaclePrefab, floor, box, pile, robotCaja;
     public int NAgents, width, height, cajas, pasos;
     public float timeToUpdate = 5.0f;
     private float timer, dt;
@@ -79,6 +85,7 @@ public class AgentController : MonoBehaviour
         currPositions = new Dictionary<string, Vector3>();
 
         agents = new Dictionary<string, GameObject>();
+        robotCaja = new Dictionary<string, GameObject>();
 
         floor.transform.localScale = new Vector3((float)width/10, 1, (float)height/10);
         floor.transform.localPosition = new Vector3((float)width/2-0.5f, 0, (float)height/2-0.5f);
@@ -110,8 +117,19 @@ public class AgentController : MonoBehaviour
                 Vector3 interpolated = Vector3.Lerp(previousPosition, currentPosition, dt);
                 Vector3 direction = currentPosition - interpolated;
 
-                agents[agent.Key].transform.localPosition = interpolated;
-                if(direction != Vector3.zero) agents[agent.Key].transform.rotation = Quaternion.LookRotation(direction);
+                if (robotCaja[agent.Key].activeInHierachy)
+                {
+                    robotCaja[agent.Key].transform.localPosition = interpolated;
+                    if (direction != Vector3.zero) robotCaja[agent.Key].transform.rotation = Quaternion.LookRotation(direction);
+
+                }
+                else
+                {
+                    agents[agent.Key].transform.localPosition = interpolated;
+                    if (direction != Vector3.zero) agents[agent.Key].transform.rotation = Quaternion.LookRotation(direction);
+                }
+
+                
             }
 
             // float t = (timer / timeToUpdate);
@@ -183,6 +201,8 @@ public class AgentController : MonoBehaviour
                     {
                         prevPositions[agent.id] = newAgentPosition;
                         agents[agent.id] = Instantiate(agentPrefab, newAgentPosition, Quaternion.identity);
+                        robotCaja[agent.id] = Instantiate(agentPrefab, newAgentPosition, Quaternion.identity);
+                        robotCaja[agent.id].SetActive(false);
                     }
                     else
                     {
@@ -190,6 +210,20 @@ public class AgentController : MonoBehaviour
                         if(currPositions.TryGetValue(agent.id, out currentPosition))
                             prevPositions[agent.id] = currentPosition;
                         currPositions[agent.id] = newAgentPosition;
+
+                        if(caja)
+                        {   
+                            agents[agent.id].SetActive(false);
+                            robotCaja[agent.id].SetActive(true);
+                        }
+                        else
+                        {
+
+                            agents[agent.id].SetActive(true);
+                            robotCaja[agent.id].SetActive(false);
+
+                        }
+
                     }
             }
 
