@@ -61,7 +61,8 @@ class RobotAgent(Agent):
             if cellmatesNewPos[0].tipo != "robot" and \
                 cellmatesNewPos[0].tipo != "robotCaja" and \
                 cellmatesNewPos[0].tipo != "pared" and \
-                cellmatesNewPos[0].tipo != "pila":
+                cellmatesNewPos[0].tipo != "pila" and \
+                cellmatesNewPos[0].tipo != "pilaLlena":
                 self.model.grid.move_agent(self, new_position)
                 self.movimientos += 1
         elif len(cellmatesNewPos) == 0:
