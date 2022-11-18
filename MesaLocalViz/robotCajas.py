@@ -303,6 +303,6 @@ class AcomodarCajasModel(Model):
         self.dataCollectorMovements.collect(self)
         print("Cajas restantes para acomodar: ", self.cajas)
         print("Movimientos restantes para todos los agentes: ", self.pasosTotales)
-        print("Movimientos realizados por todos los agentes: ", self.calculateMovements)
+        print("Movimientos realizados por todos los agentes: ", self.calculateMovements.totalMovementes)
         print(" ")
 

@@ -14,19 +14,31 @@ public class AgentData
 {
     public string id;
     public float x, y, z;
-    public bool caja;
+    public bool tieneCaja;
 
-    public AgentData(string id, float x, float y, float z, bool caja)
+    public AgentData(string id, float x, float y, float z, bool tieneCaja)
     {
         this.id = id;
         this.x = x;
         this.y = y;
         this.z = z;
-        this.caja = caja;
+        this.tieneCaja = tieneCaja;
     }
 }
 
 [Serializable]
+
+//public class RobotData
+//{
+  //  public bool tieneCaja
+
+    //public RobotData(string id, float x, float y, float z, bool tieneCaja) : base(id, x, y, z)
+    //{
+      //  this.tieneCaja = tieneCaja;
+    //}
+//}
+
+
 
 public class AgentsData
 {
@@ -70,7 +82,7 @@ public class AgentController : MonoBehaviour
 
     bool updated = false, started = false;
 
-    public GameObject agentPrefab, obstaclePrefab, floor, box, pile, robotCaja;
+    public GameObject agentPrefab, obstaclePrefab, floor, box, pile, prefabCarry;
     public int NAgents, width, height, cajas, pasos;
     public float timeToUpdate = 5.0f;
     private float timer, dt;
@@ -117,19 +129,9 @@ public class AgentController : MonoBehaviour
                 Vector3 interpolated = Vector3.Lerp(previousPosition, currentPosition, dt);
                 Vector3 direction = currentPosition - interpolated;
 
-                if (robotCaja[agent.Key].activeInHierachy)
-                {
-                    robotCaja[agent.Key].transform.localPosition = interpolated;
-                    if (direction != Vector3.zero) robotCaja[agent.Key].transform.rotation = Quaternion.LookRotation(direction);
+                agents[agent.Key].transform.localPosition = interpolated;
+                if (direction != Vector3.zero) agents[agent.Key].transform.rotation = Quaternion.LookRotation(direction);
 
-                }
-                else
-                {
-                    agents[agent.Key].transform.localPosition = interpolated;
-                    if (direction != Vector3.zero) agents[agent.Key].transform.rotation = Quaternion.LookRotation(direction);
-                }
-
-                
             }
 
             // float t = (timer / timeToUpdate);
@@ -201,28 +203,16 @@ public class AgentController : MonoBehaviour
                     {
                         prevPositions[agent.id] = newAgentPosition;
                         agents[agent.id] = Instantiate(agentPrefab, newAgentPosition, Quaternion.identity);
-                        robotCaja[agent.id] = Instantiate(agentPrefab, newAgentPosition, Quaternion.identity);
-                        robotCaja[agent.id].SetActive(false);
+                        
                     }
                     else
                     {
+                        
                         Vector3 currentPosition = new Vector3();
                         if(currPositions.TryGetValue(agent.id, out currentPosition))
                             prevPositions[agent.id] = currentPosition;
                         currPositions[agent.id] = newAgentPosition;
 
-                        if(caja)
-                        {   
-                            agents[agent.id].SetActive(false);
-                            robotCaja[agent.id].SetActive(true);
-                        }
-                        else
-                        {
-
-                            agents[agent.id].SetActive(true);
-                            robotCaja[agent.id].SetActive(false);
-
-                        }
 
                     }
             }
