@@ -131,6 +131,8 @@ public class AgentController : MonoBehaviour
 
                 agents[agent.Key].transform.localPosition = interpolated;
                 if (direction != Vector3.zero) agents[agent.Key].transform.rotation = Quaternion.LookRotation(direction);
+                robotCaja[agent.Key].transform.localPosition = interpolated;
+                if (direction != Vector3.zero) robotCaja[agent.Key].transform.rotation = Quaternion.LookRotation(direction);
 
             }
 
@@ -203,15 +205,23 @@ public class AgentController : MonoBehaviour
                     {
                         prevPositions[agent.id] = newAgentPosition;
                         agents[agent.id] = Instantiate(agentPrefab, newAgentPosition, Quaternion.identity);
-                        
+                        robotCaja[agent.id] = Instantiate(prefabCarry, newAgentPosition, Quaternion.identity);
+                        robotCaja[agent.id].SetActive(false);
                     }
                     else
                     {
-                        
                         Vector3 currentPosition = new Vector3();
                         if(currPositions.TryGetValue(agent.id, out currentPosition))
                             prevPositions[agent.id] = currentPosition;
                         currPositions[agent.id] = newAgentPosition;
+                        if (agent.tieneCaja == true){
+                            agents[agent.id].SetActive(false);
+                            robotCaja[agent.id].SetActive(true);
+                        }
+                        else{
+                            agents[agent.id].SetActive(true);
+                            robotCaja[agent.id].SetActive(false);
+                        }
 
 
                     }

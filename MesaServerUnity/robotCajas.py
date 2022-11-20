@@ -305,4 +305,3 @@ class AcomodarCajasModel(Model):
         print("Movimientos restantes para todos los agentes: ", self.pasosTotales)
         print("Movimientos realizados por todos los agentes: ", self.calculateMovements)
         print(" ")
-
