@@ -1,7 +1,13 @@
+"""
+Visualizador de Acomodo de Cajas con Robots
+Autores: Jose Luis Madrigal, Cesar Emiliano Palome, Christian Parrish y Jorge Blanco
+Creado: Noviembre 15, 2022
+"""
 from robotCajas import *
 from mesa.visualization.modules import CanvasGrid
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.modules import ChartModule
+
 
 def agent_portrayal(agent):
     '''
@@ -72,16 +78,16 @@ def agent_portrayal(agent):
     else:
         return portrayal5
 
-
 ancho = 15
 alto = 15
 robots = 5
 cajas = 20
-pasos = 5000000
+pasos = 400
 grid = CanvasGrid(agent_portrayal, ancho, alto, 750, 750)
 totalMovementsGraph = ChartModule([{"Label": "Total Movements", "Color": "Red"}], data_collector_name='dataCollectorMovements')
+boxesLeftGraph = ChartModule([{"Label": "Boxes Left", "Color": "Blue"}], data_collector_name='dataCollectorBoxes')
 server = ModularServer(AcomodarCajasModel,
-                       [grid, totalMovementsGraph],
+                       [grid, totalMovementsGraph, boxesLeftGraph],
                        "Robot Acomoda Cajas",
                        {"width":ancho, "height":alto, "agents": robots, "boxes": cajas, "steps": pasos})
 server.port = 8521 # The default
