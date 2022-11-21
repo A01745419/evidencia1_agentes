@@ -60,7 +60,7 @@ def getCajas():
     global randomModel
 
     if request.method == 'GET':
-        boxPosition = [{"id": str(agent.unique_id), "x": x, "y": 1, "z": z} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, CajaAgent)]
+        boxPosition = [{"id": str(agent.unique_id), "x": x, "y": 1, "z": z, "tipo": agent.tipo} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, CajaAgent)]
 
         return jsonify({'positions': boxPosition})
 
@@ -69,7 +69,7 @@ def getPilas():
     global randomModel
 
     if request.method == 'GET':
-        pilaPosition = [{"id": str(agent.unique_id), "x": x, "y": 1, "z": z} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, PilaAgent)]
+        pilaPosition = [{"id": str(agent.unique_id), "x": x, "y": 1, "z": z, "numCajas": agent.numCajas} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, PilaAgent)]
 
         return jsonify({'positions': pilaPosition})
 

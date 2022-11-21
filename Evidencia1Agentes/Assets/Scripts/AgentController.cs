@@ -27,6 +27,39 @@ public class AgentData
 }
 
 [Serializable]
+public class CajaData
+{
+    public string id;
+    public float x, y, z;
+    public string tipo;
+
+    public CajaData(string id, float x, float y, float z, string tipo)
+    {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.tipo = tipo;
+    }
+}
+
+[Serializable]
+public class PilaData
+{
+    public string id;
+    public float x, y, z;
+    public int numCajas;
+
+    public PilaData(string id, float x, float y, float z, int numCajas)
+    {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.numCajas = numCajas;
+    }
+}
+[Serializable]
 
 //public class RobotData
 //{
@@ -51,18 +84,18 @@ public class AgentsData
 
 public class CajasData
 {
-    public List<AgentData> positions;
+    public List<CajaData> positions;
 
-    public CajasData() => this.positions = new List<AgentData>();
+    public CajasData() => this.positions = new List<CajaData>();
 }
 
 [Serializable]  
 
 public class PilasData
 {
-    public List<AgentData> positions;
+    public List<PilaData> positions;
 
-    public PilasData() => this.positions = new List<AgentData>();
+    public PilasData() => this.positions = new List<PilaData>();
 }
 
 
@@ -76,9 +109,12 @@ public class AgentController : MonoBehaviour
     string getPilasEndpoint = "/getPilas";
     string sendConfigEndpoint = "/init";
     string updateEndpoint = "/update";
-    AgentsData agentsData, obstacleData, cajasData, pilasData;
-    Dictionary<string, GameObject> agents, robotCaja;
+    AgentsData agentsData, obstacleData;
+    CajasData cajasData;
+    PilasData pilasData;
+    Dictionary<string, GameObject> agents, robotCaja, cajasInst, idPilas;
     Dictionary<string, Vector3> prevPositions, currPositions;
+    Dictionary<string, int> cajasPila;
 
     bool updated = false, started = false;
 
@@ -91,13 +127,16 @@ public class AgentController : MonoBehaviour
     {
         agentsData = new AgentsData();
         obstacleData = new AgentsData();
-        cajasData = new AgentsData();
-        pilasData = new AgentsData();
+        cajasData = new CajasData();
+        pilasData = new PilasData();
         prevPositions = new Dictionary<string, Vector3>();
         currPositions = new Dictionary<string, Vector3>();
 
         agents = new Dictionary<string, GameObject>();
         robotCaja = new Dictionary<string, GameObject>();
+        cajasInst = new Dictionary<string, GameObject>();
+        idPilas = new Dictionary<string, GameObject>();
+        cajasPila = new Dictionary<string, int>();
 
         floor.transform.localScale = new Vector3((float)width/10, 1, (float)height/10);
         floor.transform.localPosition = new Vector3((float)width/2-0.5f, 0, (float)height/2-0.5f);
@@ -151,6 +190,8 @@ public class AgentController : MonoBehaviour
         else 
         {
             StartCoroutine(GetAgentsData());
+            StartCoroutine(GetPilasData());
+            StartCoroutine(GetCajasData());
         }
     }
 
@@ -178,9 +219,9 @@ public class AgentController : MonoBehaviour
             Debug.Log("Configuration upload complete!");
             Debug.Log("Getting Agents positions");
             StartCoroutine(GetAgentsData());
+            StartCoroutine(GetPilasData());
             StartCoroutine(GetObstacleData());
             StartCoroutine(GetCajasData());
-            StartCoroutine(GetPilasData());
         }
     }
 
@@ -226,9 +267,6 @@ public class AgentController : MonoBehaviour
 
                     }
             }
-
-            updated = true;
-            if(!started) started = true;
         }
     }
 
@@ -261,14 +299,26 @@ public class AgentController : MonoBehaviour
             Debug.Log(www.error);
         else
         {
-            cajasData = JsonUtility.FromJson<AgentsData>(www.downloadHandler.text);
+            cajasData = JsonUtility.FromJson<CajasData>(www.downloadHandler.text);
 
             Debug.Log(cajasData.positions);
 
-            foreach (AgentData caja in cajasData.positions)
+            foreach (CajaData caja in cajasData.positions)
             {
-                Instantiate(box, new Vector3(caja.x, (float)0.4, caja.z), Quaternion.identity);
+                    if(!started)
+                    {
+                        cajasInst[caja.id] = Instantiate(box, new Vector3(caja.x, (float)0.4, caja.z), Quaternion.identity);
+                        Debug.Log(cajasInst[caja.id]);
+                    }
+                    else
+                    {
+                        if (caja.tipo == "vacio"){
+                            cajasInst[caja.id].SetActive(false);
+                        }
+                    }
             }
+            updated = true;
+            if(!started) started = true;
         }
     }
 
@@ -281,13 +331,24 @@ public class AgentController : MonoBehaviour
             Debug.Log(www.error);
         else
         {
-            pilasData = JsonUtility.FromJson<AgentsData>(www.downloadHandler.text);
+            pilasData = JsonUtility.FromJson<PilasData>(www.downloadHandler.text);
 
             Debug.Log(pilasData.positions);
 
-            foreach (AgentData pila in pilasData.positions)
+            foreach (PilaData pila in pilasData.positions)
             {
-                Instantiate(pile, new Vector3(pila.x, (float)3.2, pila.z), Quaternion.identity);
+                if(!started)
+                {
+                    idPilas[pila.id] = Instantiate(pile, new Vector3(pila.x, (float)3.2, pila.z), Quaternion.identity);
+                    cajasPila[pila.id] = pila.numCajas;
+                }
+                else
+                {
+                    if (pila.numCajas != cajasPila[pila.id]){
+                        cajasPila[pila.id] = cajasPila[pila.id] + 1;
+                        Instantiate(box, new Vector3(pila.x, ((cajasPila[pila.id] * (float)0.94)), pila.z), Quaternion.identity);
+                    }
+                }
             }
         }
     }

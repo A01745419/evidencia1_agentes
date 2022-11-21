@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.3069224, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -157,6 +157,7 @@ MonoBehaviour:
   floor: {fileID: 1260983692}
   box: {fileID: 8518344144719697282, guid: d3506ab25bb6a5844ab3c8cd880eb56f, type: 3}
   pile: {fileID: 3166769858950160241, guid: 1577fb4c88172c941b901469c5f999b6, type: 3}
+  prefabCarry: {fileID: 6315713362695284343, guid: 02c2003474cc63c4b8200f563c1e24eb, type: 3}
   NAgents: 10
   width: 20
   height: 20
