@@ -1,7 +1,7 @@
 ﻿// TC2008B. Sistemas Multiagentes y Gráficas Computacionales
 // C# client to interact with Python. Based on the code provided by Sergio Ruiz.
-// Octavio Navarro. October 2021
-
+// Noviembre 2022
+// Autores: Jose Luis Madrigal, Cesar Emiliano Palome, Christian Parrish y Jorge Blanco
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -288,7 +288,7 @@ public class AgentController : MonoBehaviour
 
             foreach(AgentData obstacle in obstacleData.positions)
             {
-                Instantiate(obstaclePrefab, new Vector3(obstacle.x, (float)0.5 , obstacle.z), Quaternion.identity);
+                Instantiate(obstaclePrefab, new Vector3(obstacle.x, (float)1 , obstacle.z), Quaternion.identity);
             }
         }
     }
@@ -349,7 +349,20 @@ public class AgentController : MonoBehaviour
                 {
                     if (pila.numCajas != cajasPila[pila.id]){
                         cajasPila[pila.id] = cajasPila[pila.id] + 1;
-                        Instantiate(box, new Vector3(pila.x, ((cajasPila[pila.id] * (float)0.94)), pila.z), Quaternion.identity);
+                        if (pila.numCajas == 1){
+                            Instantiate(box, new Vector3(pila.x, ((cajasPila[pila.id] * (float)0.60)), pila.z), Quaternion.identity);
+                        }
+                        else if (pila.numCajas == 2)
+                        {
+                            Instantiate(box, new Vector3(pila.x, ((cajasPila[pila.id] * (float)0.85)), pila.z), Quaternion.identity);
+                        }
+                        else if (pila.numCajas == 3)
+                        {
+                            Instantiate(box, new Vector3(pila.x, ((cajasPila[pila.id] * (float)0.87)), pila.z), Quaternion.identity);
+                        }
+                        else{
+                            Instantiate(box, new Vector3(pila.x, ((cajasPila[pila.id] * (float)0.94)), pila.z), Quaternion.identity);
+                        }
                     }
                 }
             }
