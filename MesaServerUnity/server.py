@@ -73,6 +73,15 @@ def getPilas():
 
         return jsonify({'positions': pilaPosition})
 
+@app.route('/getPared', methods=['GET'])
+def getPared():
+    global randomModel
+
+    if request.method == 'GET':
+        doorPosition = [{"id": str(agent.unique_id), "x": x, "y":1, "z":z} for (a, x, z) in randomModel.grid.coord_iter() for agent in a if isinstance(agent, PuertaAgent) ]
+
+        return jsonify({'positions':doorPosition})
+
 @app.route('/update', methods=['GET'])
 def updateModel():
     global currentStep, randomModel

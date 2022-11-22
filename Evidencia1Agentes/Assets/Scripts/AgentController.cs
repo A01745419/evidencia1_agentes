@@ -107,9 +107,10 @@ public class AgentController : MonoBehaviour
     string getObstaclesEndpoint = "/getObstacles";
     string getCajasEndpoint = "/getCajas";
     string getPilasEndpoint = "/getPilas";
+    string getParedEndpoint = "/getPared";
     string sendConfigEndpoint = "/init";
     string updateEndpoint = "/update";
-    AgentsData agentsData, obstacleData;
+    AgentsData agentsData, obstacleData, paredData;
     CajasData cajasData;
     PilasData pilasData;
     Dictionary<string, GameObject> agents, robotCaja, cajasInst, idPilas;
@@ -118,7 +119,7 @@ public class AgentController : MonoBehaviour
 
     bool updated = false, started = false;
 
-    public GameObject agentPrefab, obstaclePrefab, floor, box, pile, prefabCarry;
+    public GameObject agentPrefab, obstaclePrefab, floor, box, pile, prefabCarry, door;
     public int NAgents, width, height, cajas, pasos;
     public float timeToUpdate = 5.0f;
     private float timer, dt;
@@ -129,6 +130,7 @@ public class AgentController : MonoBehaviour
         obstacleData = new AgentsData();
         cajasData = new CajasData();
         pilasData = new PilasData();
+        paredData = new AgentsData();
         prevPositions = new Dictionary<string, Vector3>();
         currPositions = new Dictionary<string, Vector3>();
 
@@ -221,6 +223,7 @@ public class AgentController : MonoBehaviour
             StartCoroutine(GetAgentsData());
             StartCoroutine(GetPilasData());
             StartCoroutine(GetObstacleData());
+            StartCoroutine(GetParedData());
             StartCoroutine(GetCajasData());
         }
     }
@@ -349,6 +352,26 @@ public class AgentController : MonoBehaviour
                         Instantiate(box, new Vector3(pila.x, ((cajasPila[pila.id] * (float)0.94)), pila.z), Quaternion.identity);
                     }
                 }
+            }
+        }
+    }
+
+    IEnumerator GetParedData() 
+    {
+        UnityWebRequest www = UnityWebRequest.Get(serverUrl + getParedEndpoint);
+        yield return www.SendWebRequest();
+ 
+        if (www.result != UnityWebRequest.Result.Success)
+            Debug.Log(www.error);
+        else 
+        {
+            paredData = JsonUtility.FromJson<AgentsData>(www.downloadHandler.text);
+
+            Debug.Log(paredData.positions);
+
+            foreach(AgentData pared in paredData.positions)
+            {
+                Instantiate(door, new Vector3(pared.x, 0, pared.z), Quaternion.identity);
             }
         }
     }

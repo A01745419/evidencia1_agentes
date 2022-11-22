@@ -158,6 +158,7 @@ MonoBehaviour:
   box: {fileID: 8518344144719697282, guid: d3506ab25bb6a5844ab3c8cd880eb56f, type: 3}
   pile: {fileID: 3166769858950160241, guid: 1577fb4c88172c941b901469c5f999b6, type: 3}
   prefabCarry: {fileID: 6315713362695284343, guid: 02c2003474cc63c4b8200f563c1e24eb, type: 3}
+  door: {fileID: 2489347768821609685, guid: 88032e1dc5644834592b3138332118bb, type: 3}
   NAgents: 10
   width: 20
   height: 20
